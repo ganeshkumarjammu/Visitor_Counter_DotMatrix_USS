@@ -16,7 +16,8 @@ int count = 0;
 
 //Potentiometer 
 #define POT A0
-//8*8 matrix 8 bit codes
+
+//8*8 matrix code
 const byte smile[8] =   {0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C};
 const byte Number[10][8] = {
   {
@@ -199,7 +200,9 @@ void loop() {
     if (count > 9) count = 0 ;
     printByte(Number[count]);
     Serial.println(count);
+    //Waiting 1sec for obstacle to move away from sensor
     delay(1000);
+    //Comment this while loop if you dont want to wait until the obstacle moves away from sensor
     while (distance < maxDistance) {
       calcDist();
       Serial.print("Distance : ");
