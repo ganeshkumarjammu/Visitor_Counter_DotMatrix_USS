@@ -11,10 +11,18 @@ LedControl Display = LedControl(DIN, CLK, CS, MAX_DEVICES);
 #define trigPin 11    // Trigger
 #define echoPin 12    // Echo
 #define MaxDistance 100
+
 long duration, distance, maxDistance;
 int count = 0;
+int slowIn = 10;
+int slowOut = 10;
+int allowY = slowIn + 2 ;
+int allowN = slowOut + 2;
+int countY = 0 ;
+int countN = 0 ;
 
-//Potentiometer 
+int people = 0;
+//Potentiometer
 #define POT A0
 
 //8*8 matrix code
@@ -187,45 +195,43 @@ void setup() {
 
 void loop() {
   int analogValue = analogRead(POT);
-  calcDist();
-  int maxDistance = map(analogValue, 0, 1024, 0, MaxDistance+1);
+  int maxDistance = map(analogValue, 0, 1024, 0, MaxDistance + 1);
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  distance = pulseIn(echoPin, HIGH) / 58;
   Serial.print("Distance / MaxDistance : ");
   Serial.print(distance);
   Serial.print(" cm");
   Serial.print("/");
   Serial.print(maxDistance);
   Serial.println(" cm");
-  if (distance < maxDistance) {
-    count = count + 1;
-    if (count > 9) count = 0 ;
-    printByte(Number[count]);
-    Serial.println(count);
-    //Waiting 1sec for obstacle to move away from sensor
-    delay(1000);
-    //Comment this while loop if you dont want to wait until the obstacle moves away from sensor
-    while (distance < maxDistance) {
-      calcDist();
-      Serial.print("Distance : ");
-      Serial.print(distance);
-      Serial.println(" cm");
-      Serial.println(count);
-      delay(50);
+  if ((distance < maxDistance) && (distance != 0)) {
+    countY = (countY < allowY ) ? countY+1 : countY;
+    if(countY == slowIn ){
+    people = (people < 9) ? people+1:0;
+    printByte(Number[people]);
+    countN = 0;
     }
+  }
+  else if(distance > maxDistance){
+   countN = (countN < allowN ) ? countN+1 : countN ;
+   if(countN == slowOut){countY = 0;} 
+  }
+  else if(distance == 0){
+    Serial.println("distance:0");
   }
 }
 
 void calcDist() {
   digitalWrite(trigPin, LOW);
-  delayMicroseconds(5);
+  delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  // Read the signal from the sensor: a HIGH pulse whose
-  // duration is the time (in microseconds) from the sending
-  // of the ping to the reception of its echo off of an object
-  duration = pulseIn(echoPin, HIGH);
-  // Convert the time into a distance
-  distance = (duration / 2) / 29.1;   // Divide by 29.1 or multiply by 0.0343
+  distance = pulseIn(echoPin, HIGH) / 58;
 }
 
 void printByte(byte character []) {
