@@ -211,7 +211,7 @@ void loop() {
   if ((distance < maxDistance) && (distance != 0)) {
     countY = (countY < allowY ) ? countY+1 : countY;
     if(countY == slowIn ){
-    people = (people < 9) ? people+1:0;
+    people = (people < maxPeople) ? people+1:0;
     printByte(Number[people]);
     countN = 0;
     }
