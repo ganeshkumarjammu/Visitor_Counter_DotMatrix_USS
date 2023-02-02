@@ -10,7 +10,8 @@ LedControl Display = LedControl(DIN, CLK, CS, MAX_DEVICES);
 //Ultrasonic Sensor
 #define trigPin 11    // Trigger
 #define echoPin 12    // Echo
-#define MaxDistance 100
+#define MaxDistance 60
+#define maxPeople 9
 
 long duration, distance, maxDistance;
 int count = 0;
@@ -209,18 +210,20 @@ void loop() {
   Serial.print(maxDistance);
   Serial.println(" cm");
   if ((distance < maxDistance) && (distance != 0)) {
-    countY = (countY < allowY ) ? countY+1 : countY;
-    if(countY == slowIn ){
-    people = (people < maxPeople) ? people+1:0;
-    printByte(Number[people]);
-    countN = 0;
+    countY = (countY < allowY ) ? countY + 1 : countY;
+    if (countY == slowIn ) {
+      people = (people < maxPeople) ? people + 1 : 0;
+      printByte(Number[people]);
+      countN = 0;
     }
   }
-  else if(distance > maxDistance){
-   countN = (countN < allowN ) ? countN+1 : countN ;
-   if(countN == slowOut){countY = 0;} 
+  else if (distance > maxDistance) {
+    countN = (countN < allowN ) ? countN + 1 : countN ;
+    if (countN == slowOut) {
+      countY = 0;
+    }
   }
-  else if(distance == 0){
+  else if (distance == 0) {
     Serial.println("distance:0");
   }
 }
